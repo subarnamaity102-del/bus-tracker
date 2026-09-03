@@ -1,0 +1,163 @@
+*Search*
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Buses - Bus Tracker</title>
+  <meta name="description" content="Search buses by number, route, origin, or destination. View real-time estimated arrival times and live bus status.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="logo">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+        </svg>
+        <span>Bus Tracker</span>
+      </a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="search.html" class="nav-link active">Search</a>
+        <a href="index.html#routes" class="nav-link">Routes</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="search.html" class="btn btn-primary btn-sm">Track Bus</a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="section" style="background-color: var(--white); border-bottom: 1px solid var(--border); padding: 40px 0;">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 0; text-align: left;">
+        <h1>Search Buses & Routes</h1>
+        <p>Find estimated arrival times, live stops, and status for all active transit buses.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      
+      <div class="search-box" style="margin-bottom: 30px;">
+        <form class="search-form" id="searchPageForm" onsubmit="event.preventDefault(); filterBuses();">
+          <div class="form-group">
+            <label for="searchBusNumber">Bus Number / Keyword</label>
+            <input type="text" id="searchBusNumber" class="form-control" placeholder="Enter Bus Number (e.g. 201, 78)">
+          </div>
+          <div class="form-group">
+            <label for="searchSource">Source Station</label>
+            <select id="searchSource" class="form-control">
+              <option value="">All Sources</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="searchDestination">Destination Station</label>
+            <select id="searchDestination" class="form-control">
+              <option value="">All Destinations</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button type="button" id="searchBtn" class="btn btn-primary btn-block">Filter Buses</button>
+          </div>
+        </form>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <h2>Live Search Results</h2>
+        <span id="searchResultCount" style="font-size: 14px; font-weight: 600; color: var(--secondary);">Showing active buses</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Bus Number</th>
+              <th>Route</th>
+              <th>Current Stop</th>
+              <th>Arrival Time</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="searchResultsContainer">
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="modal-overlay" id="busModalOverlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalBusTitle">Bus Details</h3>
+        <button class="modal-close" id="busModalClose">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBusBody">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="busModalFooterClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <a href="index.html" class="logo" style="margin-bottom: 12px;">
+            <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: var(--primary);">
+              <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+            </svg>
+            <span>Bus Tracker</span>
+          </a>
+          <p>Handcrafted, real-time public transit tracking system built for easy commuter access.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="search.html">Search Bus</a>
+            <a href="about.html">About Us</a>
+            <a href="contact.html">Contact Us</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Transit Info</h4>
+          <div class="footer-links">
+            <a href="index.html#routes">Popular Routes</a>
+            <a href="index.html#schedule">Schedules</a>
+            <a href="index.html#faq">FAQ</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <p><strong>Email:</strong> support@bustracker.local</p>
+          <p><strong>Phone:</strong> +1 (800) 555-BUS1</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Bus Tracker. All rights reserved.</span>
+        <span>Built with HTML5, CSS3 &amp; Vanilla JavaScript</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/modal.js"></script>
+</body>
+</html>

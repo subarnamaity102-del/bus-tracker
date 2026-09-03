@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bus Details - Bus Tracker</title>
+  <meta name="description" content="View detailed bus route information, driver name, seats available, live ETA, and stop timeline.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+      margin: 20px 0;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 5px;
+      bottom: 5px;
+      width: 3px;
+      background-color: var(--border);
+    }
+    .timeline-step {
+      position: relative;
+      margin-bottom: 24px;
+    }
+    .timeline-step:last-child {
+      margin-bottom: 0;
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -26px;
+      top: 2px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background-color: var(--white);
+      border: 3px solid var(--secondary);
+    }
+    .timeline-step.active .timeline-dot {
+      border-color: var(--primary);
+      background-color: var(--primary);
+    }
+    .timeline-step.passed .timeline-dot {
+      border-color: var(--success);
+      background-color: var(--success);
+    }
+    .timeline-content {
+      background-color: var(--white);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: var(--radius);
+    }
+    .timeline-content h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .timeline-content p {
+      font-size: 13px;
+      color: var(--secondary);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="logo">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+        </svg>
+        <span>Bus Tracker</span>
+      </a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="search.html" class="nav-link">Search</a>
+        <a href="index.html#routes" class="nav-link">Routes</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="search.html" class="btn btn-primary btn-sm">Track Bus</a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="section" style="background-color: var(--white); border-bottom: 1px solid var(--border); padding: 40px 0;">
+    <div class="container">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+            <h1 style="margin: 0;" id="detailBusTitle">Bus #201 Details</h1>
+            <span class="badge badge-success" id="detailStatusBadge">On Time</span>
+          </div>
+          <p style="margin: 0;" id="detailRouteSub">Route: City Center → Airport</p>
+        </div>
+        <div>
+          <select id="busSelector" class="form-control" style="width: 200px;" onchange="loadBusDetails(this.value)">
+            <option value="201">Select Bus #201</option>
+            <option value="115">Select Bus #115</option>
+            <option value="78">Select Bus #78</option>
+            <option value="42">Select Bus #42</option>
+            <option value="305">Select Bus #305</option>
+            <option value="88">Select Bus #88</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="hero-grid" style="align-items: start;">
+        
+        <div>
+          <div class="search-box" style="margin-bottom: 24px;">
+            <h2 style="font-size: 18px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">Bus Overview &amp; Specifications</h2>
+            
+            <div class="modal-info-grid" id="detailGrid">
+              <div class="info-item">
+                <label>Bus Number</label>
+                <span id="detailBusNum">Bus #201</span>
+              </div>
+              <div class="info-item">
+                <label>Driver Name</label>
+                <span id="detailDriver">Robert Miller</span>
+              </div>
+              <div class="info-item">
+                <label>Current Stop</label>
+                <span id="detailCurrentStop">Park Street</span>
+              </div>
+              <div class="info-item">
+                <label>Next Stop</label>
+                <span id="detailNextStop">VIP Road</span>
+              </div>
+              <div class="info-item">
+                <label>Estimated Arrival</label>
+                <span id="detailETA">5 Minutes</span>
+              </div>
+              <div class="info-item">
+                <label>Available Seats</label>
+                <span id="detailSeats">14 / 40 Seats</span>
+              </div>
+              <div class="info-item">
+                <label>Platform</label>
+                <span id="detailPlatform">Platform A</span>
+              </div>
+              <div class="info-item">
+                <label>Frequency</label>
+                <span id="detailFreq">Every 15 Minutes</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="search-box">
+            <h2 style="font-size: 18px; margin-bottom: 12px;">Departure &amp; Arrival Schedule</h2>
+            <div style="display: flex; justify-content: space-between; font-size: 15px; background: var(--bg); padding: 16px; border-radius: 6px; border: 1px solid var(--border);">
+              <div>
+                <span style="font-size: 12px; color: var(--secondary); display: block;">DEPARTURE TIME</span>
+                <strong id="detailDeparture" style="font-size: 18px; color: var(--primary);">08:00 AM</strong>
+              </div>
+              <div style="text-align: center; color: var(--secondary);">→</div>
+              <div style="text-align: right;">
+                <span style="font-size: 12px; color: var(--secondary); display: block;">SCHEDULED ARRIVAL</span>
+                <strong id="detailArrival" style="font-size: 18px; color: var(--text);">08:45 AM</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-box">
+          <h2 style="font-size: 18px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">Live Stop Progress</h2>
+          
+          <div class="timeline" id="detailTimeline">
+            <div class="timeline-step passed">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h4>City Center Terminal (Origin)</h4>
+                <p>Departed at 08:00 AM • On Time</p>
+              </div>
+            </div>
+            
+            <div class="timeline-step active">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h4>Park Street (Current Stop)</h4>
+                <p style="color: var(--primary); font-weight: 600;">Bus actively at stop • Boarding passengers</p>
+              </div>
+            </div>
+
+            <div class="timeline-step">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h4>VIP Road (Next Stop)</h4>
+                <p>ETA: 5 minutes away</p>
+              </div>
+            </div>
+
+            <div class="timeline-step">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h4>Airport Terminal (Destination)</h4>
+                <p>Scheduled arrival: 08:45 AM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <a href="index.html" class="logo" style="margin-bottom: 12px;">
+            <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: var(--primary);">
+              <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+            </svg>
+            <span>Bus Tracker</span>
+          </a>
+          <p>Handcrafted, real-time public transit tracking system built for easy commuter access.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="search.html">Search Bus</a>
+            <a href="about.html">About Us</a>
+            <a href="contact.html">Contact Us</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Transit Info</h4>
+          <div class="footer-links">
+            <a href="index.html#routes">Popular Routes</a>
+            <a href="index.html#schedule">Schedules</a>
+            <a href="index.html#faq">FAQ</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <p><strong>Email:</strong> support@bustracker.local</p>
+          <p><strong>Phone:</strong> +1 (800) 555-BUS1</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Bus Tracker. All rights reserved.</span>
+        <span>Built with HTML5, CSS3 &amp; Vanilla JavaScript</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+  <script>
+    function loadBusDetails(busId) {
+      const bus = busData.find(b => b.id === busId);
+      if (!bus) return;
+
+      document.getElementById("detailBusTitle").textContent = `Bus #${bus.busNumber} Details`;
+      document.getElementById("detailRouteSub").textContent = `Route: ${bus.routeName}`;
+      document.getElementById("detailStatusBadge").className = `badge ${bus.status === 'Delayed' ? 'badge-warning' : bus.status === 'Cancelled' ? 'badge-danger' : 'badge-success'}`;
+      document.getElementById("detailStatusBadge").textContent = bus.status;
+
+      document.getElementById("detailBusNum").textContent = `Bus #${bus.busNumber}`;
+      document.getElementById("detailDriver").textContent = bus.driverName;
+      document.getElementById("detailCurrentStop").textContent = bus.currentStop;
+      document.getElementById("detailNextStop").textContent = bus.nextStop;
+      document.getElementById("detailETA").textContent = bus.status === 'Cancelled' ? 'N/A' : `${bus.etaMinutes} Minutes`;
+      document.getElementById("detailSeats").textContent = `${bus.availableSeats} / ${bus.totalSeats} Seats`;
+      document.getElementById("detailPlatform").textContent = bus.platform;
+      document.getElementById("detailFreq").textContent = bus.frequency;
+
+      document.getElementById("detailDeparture").textContent = bus.departure;
+      document.getElementById("detailArrival").textContent = bus.arrival;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const busIdParam = urlParams.get('id') || '201';
+      const selector = document.getElementById("busSelector");
+      if (selector) selector.value = busIdParam;
+      loadBusDetails(busIdParam);
+    });
+  </script>
+</body>
+</html>
